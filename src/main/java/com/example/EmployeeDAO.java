@@ -1,26 +1,33 @@
 package com.example;
-
 import java.sql.*;
-import java.util.Collections;
 
 public class EmployeeDAO {
 
  public void AddEmployee(Employee employee){
-     String sqlQuery="Insert into employees(name,department,salary) values(?,?,?)";
+     String checkQuery="select * from employees where id =?";
+     String sqlQuery="Insert into employees(id,name,department,salary) values(?,?,?,?)";
 
-     try(Connection connection=DBConnection.getConnection();
-         PreparedStatement preparedStatement=connection.prepareStatement(sqlQuery)){
-
-         preparedStatement.setString(1,employee.getName());
-         preparedStatement.setString(2,employee.getDepartment());
-         preparedStatement.setInt(3,employee.getSalary());
-
-         int row=preparedStatement.executeUpdate();
-
-         if(row>0){
-             System.out.println("Employee Added");
+     try(Connection connection=DBConnection.getConnection()){
+         PreparedStatement checkStatement=connection.prepareStatement(checkQuery);
+         checkStatement.setInt(1,employee.getId());
+         ResultSet resultSet=checkStatement.executeQuery();
+         if(resultSet.next()){
+             System.out.println("Employee id Already exist");
          }
-     }catch (Exception e){
+        else{
+             PreparedStatement insertStatement=connection.prepareStatement(sqlQuery);
+             insertStatement.setInt(1, employee.getId());
+             insertStatement.setString(2, employee.getName());
+             insertStatement.setString(3, employee.getDepartment());
+             insertStatement.setInt(4, employee.getSalary());
+
+             int row = insertStatement.executeUpdate();
+
+             if (row > 0) {
+                 System.out.println("Employee Added");
+             }
+         }
+     }catch (SQLException e){
           e.printStackTrace();
      }
  }
@@ -45,19 +52,21 @@ public class EmployeeDAO {
      }
     }
 
-    public void UpdateEmployee(int id,int salary){
+    public void updateName(int id, String newName) {
+     String updateNameQuery="UPDATE employees SET name=? WHERE id=?";
 
-     String sqlQuery= "UPDATE employees SET salary=? WHERE id=?";
+     try (Connection connection=DBConnection.getConnection();
+          PreparedStatement preparedStatement=connection.prepareStatement(updateNameQuery)){
 
-     try(Connection connection=DBConnection.getConnection();
-     PreparedStatement preparedStatement=connection.prepareStatement(sqlQuery)){
+         preparedStatement.setString(1, newName);
+         preparedStatement.setInt(2, id);
 
-         preparedStatement.setInt(1,salary);
-         preparedStatement.setInt(2,id);
+         int rows = preparedStatement.executeUpdate();
 
-         int row=preparedStatement.executeUpdate();
-         if(row>0){
-             System.out.println("Employee details updated");
+         if (rows > 0) {
+             System.out.println("Name Updated Successfully");
+         } else {
+             System.out.println("Employee ID Not Found");
          }
 
      }catch (SQLException e){
@@ -65,6 +74,73 @@ public class EmployeeDAO {
      }
     }
 
+    public void updateDepartment(int id, String dept) {
+        String query = "UPDATE employees SET department=? WHERE id=?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, dept);
+            preparedStatement.setInt(2, id);
+
+            int rows = preparedStatement.executeUpdate();
+
+            if (rows > 0) {
+                System.out.println("Department Updated Successfully");
+            } else {
+                System.out.println("Employee ID Not Found");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateSalary(int id, int salary) {
+
+        String query = "UPDATE employees SET salary=? WHERE id=?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, salary);
+            preparedStatement.setInt(2, id);
+
+            int rows = preparedStatement.executeUpdate();
+
+            if (rows > 0) {
+                System.out.println("Salary Updated Successfully");
+            } else {
+                System.out.println("Employee ID Not Found");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateAll(int id, String name, String dept, int salary) {
+        String query = "UPDATE employees SET name=?, department=?, salary=? WHERE id=?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, dept);
+            preparedStatement.setInt(3, salary);
+            preparedStatement.setInt(4, id);
+
+            int rows = preparedStatement.executeUpdate();
+
+            if (rows > 0) {
+                System.out.println("Employee Updated Successfully");
+            } else {
+                System.out.println("Employee ID Not Found");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     public void DeleteEmpolyee(int id){
      String sqlQuery="DELETE FROM employees WHERE id=?";
 
@@ -76,8 +152,9 @@ public class EmployeeDAO {
          int row=preparedStatement.executeUpdate();
          if(row>0){
              System.out.println("Employee Deleted");
+         }else{
+             System.out.println("Employee ID Not Present");
          }
-
         }catch (SQLException e){
          e.printStackTrace();
      }

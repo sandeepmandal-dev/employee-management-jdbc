@@ -9,12 +9,6 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(String name, String department, int salary) {
-        this.name = name;
-        this.department = department;
-        this.salary = salary;
-    }
-
     public Employee(int id, String name, String department, int salary) {
         this.id = id;
         this.name = name;
